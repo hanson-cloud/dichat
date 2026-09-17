@@ -1,4 +1,4 @@
-# DiChat（递聊）
+# DiChat
 
 > 基于 yudao-cloud 二次开发的 **即时通讯（IM）+ 社交支付** 全栈开源项目。
 
