@@ -1,0 +1,30 @@
+spring:
+  application:
+    name: dichat-server
+
+  config:
+    import:
+      - optional:nacos:application-base.yaml?group=DEFAULT_GROUP&refreshEnabled=true
+      - optional:nacos:application-service-base.yaml?group=DEFAULT_GROUP&refreshEnabled=true
+      - optional:nacos:system-server.yaml?group=DEFAULT_GROUP&refreshEnabled=true
+      - optional:nacos:infra-server.yaml?group=DEFAULT_GROUP&refreshEnabled=true
+      - optional:nacos:member-server.yaml?group=DEFAULT_GROUP&refreshEnabled=true
+      - optional:nacos:ai-server.yaml?group=DEFAULT_GROUP&refreshEnabled=true
+      - optional:nacos:${spring.application.name}.yaml?group=DEFAULT_GROUP&refreshEnabled=true
+--- #################### 注册中心 + 配置中心相关配置 ####################
+spring:
+  cloud:
+    nacos:
+      server-addr: ${NACOS_SERVER:192.168.12.83}:8848 # Nacos 服务器地址
+      username: ${NACOS_USER:nacos} # Nacos 账号
+      password: ${NACOS_PASSWORD:nacos} # Nacos 密码
+      discovery: # 单体服务不需要注册到 nacos 中。注意:仅注释子块不会关闭(enabled 默认 true 会自动注册),必须显式 enabled:false
+#        enabled: false
+        namespace: ${NACOS_NAMESPACE:local} # 命名空间。这里使用 dev 开发环境
+        group: DEFAULT_GROUP # 使用的 Nacos 配置分组，默认为 DEFAULT_GROUP
+        metadata:
+          hasDataSource: "false" # 标记该服务包含数据源
+          version: 1.0.0 # 服务实例的版本号，可用于灰度发布
+      config: # 【注册中心】配置项
+        namespace: ${NACOS_NAMESPACE:local} # 命名空间。这里使用 dev 开发环境
+        group: DEFAULT_GROUP # 使用的 Nacos 配置分组，默认为 DEFAULT_GROUP

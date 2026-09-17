@@ -1,0 +1,27 @@
+package com.diqin.cloud.module.statistics.dal.mysql.infra;
+
+import com.diqin.cloud.framework.mybatis.core.mapper.BaseMapperX;
+import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
+
+import java.time.LocalDateTime;
+
+// TODO api 访问日志，现在会清理，可能要单独有个偏业务的访问表；
+/**
+ * API 访问日志的统计 Mapper
+ *
+ * @author hanson
+ */
+@Mapper
+@SuppressWarnings("rawtypes")
+public interface ApiAccessLogStatisticsMapper extends BaseMapperX {
+
+    Integer selectIpCountByUserTypeAndCreateTimeBetween(@Param("userType") Integer userType,
+                                                        @Param("beginTime") LocalDateTime beginTime,
+                                                        @Param("endTime") LocalDateTime endTime);
+
+    Integer selectUserCountByUserTypeAndCreateTimeBetween(@Param("userType") Integer userType,
+                                                          @Param("beginTime") LocalDateTime beginTime,
+                                                          @Param("endTime") LocalDateTime endTime);
+
+}

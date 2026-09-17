@@ -1,0 +1,8 @@
+com.diqin.cloud.framework.apilog.config.DichatApiLogAutoConfiguration
+com.diqin.cloud.framework.jackson.config.DichatJacksonAutoConfiguration
+com.diqin.cloud.framework.swagger.config.DichatSwaggerAutoConfiguration
+com.diqin.cloud.framework.web.config.DichatWebAutoConfiguration
+com.diqin.cloud.framework.apilog.config.DichatApiLogRpcAutoConfiguration
+com.diqin.cloud.framework.xss.config.DichatXssAutoConfiguration
+com.diqin.cloud.framework.banner.config.DichatBannerAutoConfiguration
+com.diqin.cloud.framework.encrypt.config.DichatApiEncryptAutoConfiguration

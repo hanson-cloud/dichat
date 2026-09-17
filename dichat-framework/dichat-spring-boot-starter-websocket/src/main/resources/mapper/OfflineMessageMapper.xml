@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.diqin.cloud.framework.websocket.core.offline.dal.mysql.WsOfflineMessageMapper">
+
+    <select id="selectByUserAndNotSent" resultType="com.diqin.cloud.framework.websocket.core.offline.dal.dataobject.WsOfflineMessageDO">
+        SELECT *
+        FROM ws_offline_message
+        WHERE user_type = #{userType}
+          AND user_id = #{userId}
+          AND sent = 0
+          AND deleted = 0
+          AND (expire_time IS NULL OR expire_time > NOW())
+          AND retry_count &lt; max_retry_count
+        ORDER BY create_time
+        LIMIT #{limit}
+    </select>
+
+    <update id="updateSentByIds">
+        UPDATE ws_offline_message
+        SET sent = 1,
+        send_time = #{sendTime},
+        updater = 'system',
+        update_time = NOW()
+        WHERE id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+        AND sent = 0
+        AND deleted = 0
+    </update>
+
+    <update id="incrementRetryCount">
+        UPDATE ws_offline_message
+        SET retry_count = retry_count + 1,
+            updater = 'system',
+            update_time = NOW()
+        WHERE id = #{id}
+          AND sent = 0
+          AND deleted = 0
+    </update>
+
+    <update id="cleanExpiredOrFailedMessages">
+        UPDATE ws_offline_message
+        SET deleted = 1,
+            updater = 'system',
+            update_time = NOW()
+        WHERE deleted = 0
+          AND (
+            (expire_time IS NOT NULL AND expire_time &lt;= #{expireTime})
+                OR (sent = 0 AND retry_count >= #{maxRetryCount})
+            )
+    </update>
+
+</mapper>

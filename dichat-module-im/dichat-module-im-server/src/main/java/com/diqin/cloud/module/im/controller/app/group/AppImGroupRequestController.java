@@ -1,0 +1,160 @@
+package com.diqin.cloud.module.im.controller.app.group;
+
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.ObjUtil;
+import com.diqin.cloud.framework.common.enums.CommonStatusEnum;
+import com.diqin.cloud.framework.common.pojo.CommonResult;
+import com.diqin.cloud.framework.common.util.collection.CollectionUtils;
+import com.diqin.cloud.framework.common.util.collection.MapUtils;
+import com.diqin.cloud.framework.common.util.object.BeanUtils;
+import com.diqin.cloud.module.im.controller.app.group.vo.request.AppImGroupRequestApplyReqVO;
+import com.diqin.cloud.module.im.controller.app.group.vo.request.AppImGroupRequestRespVO;
+import com.diqin.cloud.module.im.dal.dataobject.group.ImGroupDO;
+import com.diqin.cloud.module.im.dal.dataobject.group.ImGroupMemberDO;
+import com.diqin.cloud.module.im.dal.dataobject.group.ImGroupRequestDO;
+import com.diqin.cloud.module.im.dal.dataobject.user.ImUserDO;
+import com.diqin.cloud.module.im.enums.group.ImGroupMemberRoleEnum;
+import com.diqin.cloud.module.im.service.group.ImGroupMemberService;
+import com.diqin.cloud.module.im.service.group.ImGroupRequestService;
+import com.diqin.cloud.module.im.service.group.ImGroupService;
+import com.diqin.cloud.module.im.service.user.ImUserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.annotation.Resource;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Stream;
+
+import static com.diqin.cloud.framework.common.pojo.CommonResult.success;
+import static com.diqin.cloud.framework.common.util.collection.CollectionUtils.*;
+import static com.diqin.cloud.framework.web.core.util.WebFrameworkUtils.getLoginUserId;
+
+/**
+ * 用户 APP - IM 加群申请
+ *
+ * @author hanson
+ */
+@Tag(name = "用户 APP - IM 加群申请")
+@RestController
+@RequestMapping("/im/group-request")
+@Validated
+public class AppImGroupRequestController {
+
+    @Resource
+    private ImGroupRequestService groupRequestService;
+    @Resource
+    private ImGroupService groupService;
+    @Resource
+    private ImGroupMemberService groupMemberService;
+
+    @Resource
+    private ImUserService userService;
+
+    @PostMapping("/apply")
+    @Operation(summary = "申请加群", description = "申请加入指定群聊")
+    public CommonResult<Long> applyJoinGroup(@Valid @RequestBody AppImGroupRequestApplyReqVO reqVO) {
+        ImGroupRequestDO request = groupRequestService.applyJoinGroup(getLoginUserId(), reqVO);
+        return success(request != null ? request.getId() : null);
+    }
+
+    @PutMapping("/agree")
+    @Operation(summary = "同意加群申请", description = "同意加群申请（群主/管理员）")
+    @Parameter(name = "id", description = "申请编号", required = true, example = "1024")
+    public CommonResult<Boolean> agreeGroupRequest(
+            @RequestParam("id") @NotNull(message = "申请编号不能为空") Long id) {
+        groupRequestService.agreeGroupRequest(getLoginUserId(), id);
+        return success(true);
+    }
+
+    @PutMapping("/refuse")
+    @Operation(summary = "拒绝加群申请（群主或管理员）")
+    public CommonResult<Boolean> refuseGroupRequest(
+            @RequestParam("id") @NotNull(message = "申请编号不能为空") Long id,
+            @RequestParam(value = "handleContent", required = false)
+            @Size(max = 255, message = "处理理由最多 255 个字符") String handleContent) {
+        groupRequestService.refuseGroupRequest(getLoginUserId(), id, handleContent);
+        return success(true);
+    }
+
+    @GetMapping("/unhandled-list")
+    @Operation(summary = "查询「我管理的所有群」下的未处理加群申请列表（不分页）；前端 store 据此派生横幅红点 + Drawer 列表")
+    public CommonResult<List<AppImGroupRequestRespVO>> getUnhandledRequestList() {
+        List<ImGroupRequestDO> list = groupRequestService.getUnhandledRequestListByOwnerOrAdmin(getLoginUserId());
+        return success(buildVOList(list));
+    }
+
+    @GetMapping("/list-by-group")
+    @Operation(summary = "查询指定群下的全部加群申请（含已处理）；仅群主 / 管理员可查")
+    @Parameter(name = "groupId", description = "群编号", required = true, example = "1024")
+    public CommonResult<List<AppImGroupRequestRespVO>> getGroupRequestListByGroupId(
+            @RequestParam("groupId") @NotNull(message = "群编号不能为空") Long groupId) {
+        List<ImGroupRequestDO> list = groupRequestService.getGroupRequestListByGroupId(getLoginUserId(), groupId);
+        return success(buildVOList(list));
+    }
+
+    @GetMapping("/get")
+    @Operation(summary = "按 id 单查申请记录（带越权过滤；WebSocket 通知到达后用）")
+    @Parameter(name = "id", description = "申请记录编号", required = true)
+    public CommonResult<AppImGroupRequestRespVO> getGroupRequest(@RequestParam("id") Long id) {
+        ImGroupRequestDO request = groupRequestService.getGroupRequest(id);
+        if (request == null) {
+            return success(null);
+        }
+        // 越权过滤：申请人 / 邀请人 / 群主 / 管理员之外，当不存在返回 null
+        Long currentUserId = getLoginUserId();
+        boolean canSee = ObjUtil.equal(request.getUserId(), currentUserId)
+                || ObjUtil.equal(request.getInviterUserId(), currentUserId)
+                || isGroupOwnerOrAdmin(request.getGroupId(), currentUserId);
+        if (!canSee) {
+            return success(null);
+        }
+
+        // 转换并返回
+        return success(CollUtil.getFirst(buildVOList(Collections.singletonList(request))));
+    }
+
+    /**
+     * 当前用户是否该群的有效群主 / 管理员
+     */
+    private boolean isGroupOwnerOrAdmin(Long groupId, Long userId) {
+        ImGroupMemberDO member = groupMemberService.getGroupMember(groupId, userId);
+        return member != null
+                && !CommonStatusEnum.DISABLE.getStatus().equals(member.getStatus())
+                && ImGroupMemberRoleEnum.isOwnerOrAdmin(member.getRole());
+    }
+
+    /** 申请记录列表批量转 VO + 关联回填用户 / 群信息 */
+    private List<AppImGroupRequestRespVO> buildVOList(List<ImGroupRequestDO> list) {
+        if (CollUtil.isEmpty(list)) {
+            return Collections.emptyList();
+        }
+        // 1. 聚合 user / inviter 用户信息；convertSetByFlatMap 内部已过滤 null
+        Set<Long> userIds = convertSetByFlatMap(list,
+                request -> Stream.of(request.getUserId(), request.getInviterUserId()));
+        List<ImUserDO> userList = userService.getUserList(userIds);
+        Map<Long, ImUserDO> userMap = CollectionUtils.convertMap(userList, ImUserDO::getId);
+        // 2. 聚合群信息（封禁 / 解散群也要回填，便于前端展示历史）
+        Set<Long> groupIds = convertSet(list, ImGroupRequestDO::getGroupId);
+        Map<Long, ImGroupDO> groupMap = groupService.getGroupMap(groupIds);
+        return convertList(list, request -> {
+            AppImGroupRequestRespVO vo = BeanUtils.toBean(request, AppImGroupRequestRespVO.class);
+            MapUtils.findAndThen(userMap, request.getUserId(), user ->
+                    vo.setUserNickname(user.getNickname()).setUserAvatar(user.getAvatar()));
+            MapUtils.findAndThen(userMap, request.getInviterUserId(), user ->
+                    vo.setInviterNickname(user.getNickname()).setInviterAvatar(user.getAvatar()));
+            MapUtils.findAndThen(groupMap, request.getGroupId(), group ->
+                    vo.setGroupName(group.getName()).setGroupAvatar(group.getAvatar()));
+            return vo;
+        });
+    }
+
+}

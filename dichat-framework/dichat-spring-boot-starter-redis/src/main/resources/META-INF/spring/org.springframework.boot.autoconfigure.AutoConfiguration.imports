@@ -1,0 +1,2 @@
+com.diqin.cloud.framework.redis.config.DichatRedisAutoConfiguration
+com.diqin.cloud.framework.redis.config.DichatCacheAutoConfiguration

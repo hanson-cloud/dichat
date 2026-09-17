@@ -1,0 +1,114 @@
+
+# 查看更多 .gitignore 配置 -> https://help.github.com/articles/ignoring-files/
+
+target/
+!.mvn/wrapper/maven-wrapper.jar
+
+.flattened-pom.xml
+
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+*.class
+target/*
+
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+/build/
+
+
+
+### admin-web ###
+
+# dependencies
+**/node_modules
+
+# roadhog-api-doc ignore
+/src/utils/request-temp.js
+_roadhog-api-doc
+
+# production
+/dist
+/.vscode
+
+# misc
+.DS_Store
+npm-debug.log*
+yarn-error.log
+
+/coverage
+.idea
+yarn.lock
+package-lock.json
+*bak
+.vscode
+
+# visual studio code
+.history
+*.log
+
+functions/mock
+.temp/**
+
+# umi
+.umi
+.umi-production
+
+# screenshot
+screenshot
+.firebase
+sessionStore
+
+# ===================== 开源安全红线（绝不提交） =====================
+# 1) 数据库实体文件 / MySQL 运行时数据（含真实业务数据与密码，严禁入库）
+**/*.ibd
+**/*.sdi
+**/*.ibt
+**/*.frm
+**/*.myd
+**/*.myi
+**/*.opt
+**/*.par
+**/*.trg
+**/*.trn
+script/docker/base/mysql/data/
+
+# Docker 运行时数据卷（绝不提交）
+script/docker/base/minio/
+script/docker/base/nacos/
+script/docker/base/redis/
+script/docker/base/seata/logs/
+
+# 2) 本地 / 含密钥的配置文件（数据库密码、Redis 密码、第三方 Token / Secret 等）
+**/application-dev.yaml
+**/application-dev.yml
+**/application-local.yaml
+**/application-local.yml
+**/application-unit-test.yaml
+**/application-unit-test.yml
+**/application-prod.yaml
+**/application-prod.yml
+**/*.local.yaml
+**/*.local.yml
+
+# 3) 内部文档（不对外公开）
+docs/
+
+# 4) 运行时 / 镜像缓存目录
+.image/
+script/idea/

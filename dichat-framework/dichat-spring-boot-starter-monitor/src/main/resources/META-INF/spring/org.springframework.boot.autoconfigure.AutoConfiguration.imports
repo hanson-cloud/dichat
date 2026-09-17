@@ -1,0 +1,2 @@
+com.diqin.cloud.framework.tracer.config.DichatTracerAutoConfiguration
+com.diqin.cloud.framework.tracer.config.DichatMetricsAutoConfiguration

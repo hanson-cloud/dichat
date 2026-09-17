@@ -1,0 +1,4 @@
+com.diqin.cloud.framework.idempotent.config.DichatIdempotentConfiguration
+com.diqin.cloud.framework.lock4j.config.DichatLock4jConfiguration
+com.diqin.cloud.framework.ratelimiter.config.DichatRateLimiterConfiguration
+com.diqin.cloud.framework.signature.config.DichatApiSignatureAutoConfiguration

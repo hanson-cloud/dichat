@@ -1,0 +1,2 @@
+com.diqin.cloud.framework.quartz.config.DichatXxlJobAutoConfiguration
+com.diqin.cloud.framework.quartz.config.DichatAsyncAutoConfiguration

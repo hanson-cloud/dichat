@@ -1,0 +1,2 @@
+com.diqin.cloud.framework.env.config.DichatEnvWebAutoConfiguration
+com.diqin.cloud.framework.env.config.DichatEnvRpcAutoConfiguration

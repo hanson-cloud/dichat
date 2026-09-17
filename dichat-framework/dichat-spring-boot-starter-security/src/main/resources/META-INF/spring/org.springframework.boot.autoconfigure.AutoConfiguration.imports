@@ -1,0 +1,5 @@
+com.diqin.cloud.framework.security.config.DichatSecurityRpcAutoConfiguration
+com.diqin.cloud.framework.security.config.DichatSecurityAutoConfiguration
+com.diqin.cloud.framework.security.config.DichatWebSecurityConfigurerAdapter
+com.diqin.cloud.framework.operatelog.config.DichatOperateLogConfiguration
+com.diqin.cloud.framework.operatelog.config.DichatOperateLogRpcAutoConfiguration

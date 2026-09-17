@@ -1,0 +1,6 @@
+com.diqin.cloud.framework.websocket.config.DichatWebSocketAutoConfiguration
+com.diqin.cloud.framework.websocket.config.sender.LocalSenderAutoConfiguration
+com.diqin.cloud.framework.websocket.config.sender.RedisSenderAutoConfiguration
+com.diqin.cloud.framework.websocket.config.sender.RocketMQSenderAutoConfiguration
+com.diqin.cloud.framework.websocket.config.sender.RabbitMQSenderAutoConfiguration
+com.diqin.cloud.framework.websocket.config.sender.KafkaSenderAutoConfiguration

@@ -1,0 +1,3 @@
+com.diqin.cloud.framework.datapermission.config.DichatDataPermissionAutoConfiguration
+com.diqin.cloud.framework.datapermission.config.DichatDeptDataPermissionAutoConfiguration
+com.diqin.cloud.framework.datapermission.config.DichatDataPermissionRpcAutoConfiguration

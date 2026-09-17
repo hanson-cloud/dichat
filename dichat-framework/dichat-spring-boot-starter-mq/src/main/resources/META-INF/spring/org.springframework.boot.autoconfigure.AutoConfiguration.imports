@@ -1,0 +1,3 @@
+com.diqin.cloud.framework.mq.redis.config.DichatRedisMQProducerAutoConfiguration
+com.diqin.cloud.framework.mq.redis.config.DichatRedisMQConsumerAutoConfiguration
+com.diqin.cloud.framework.mq.rabbitmq.config.DichatRabbitMQAutoConfiguration

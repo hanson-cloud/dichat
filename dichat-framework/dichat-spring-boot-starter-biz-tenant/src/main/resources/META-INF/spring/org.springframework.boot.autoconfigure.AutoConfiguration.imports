@@ -1,0 +1,2 @@
+com.diqin.cloud.framework.tenant.config.DichatTenantRpcAutoConfiguration
+com.diqin.cloud.framework.tenant.config.DichatTenantAutoConfiguration
